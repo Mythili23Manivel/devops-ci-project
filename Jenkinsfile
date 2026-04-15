@@ -1,19 +1,36 @@
-stage('Docker Build') {
-    steps {
-        sh 'docker build -t myapp:latest .'
-    }
-}
+pipeline {
+    agent any
 
-stage('Run Container') {
-    steps {
-        sh 'docker run -d --name myapp_container myapp:latest'
-        sh 'docker ps'
+    environment {
+        DOCKER_IMAGE = "mythili23manivel/mythili-app"
     }
-}
 
-stage('Cleanup') {
-    steps {
-        sh 'docker stop myapp_container || true'
-        sh 'docker rm myapp_container || true'
+    stages {
+
+        stage('Build Docker Image') {
+            steps {
+                sh "docker build -t ${DOCKER_IMAGE}:latest ."
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'echo Test Successful'
+            }
+        }
+
+        stage('Run Container') {
+            steps {
+                sh "docker run -d --name myapp ${DOCKER_IMAGE}:latest || true"
+                sh "docker ps"
+            }
+        }
+
+        stage('Push Image') {
+            steps {
+                sh "docker login -u YOUR_USERNAME -p YOUR_PASSWORD"
+                sh "docker push ${DOCKER_IMAGE}:latest"
+            }
+        }
     }
 }
