@@ -28,7 +28,7 @@ pipeline {
 
         stage('Push Image') {
             steps {
-                sh "docker login -u YOUR_USERNAME -p YOUR_PASSWORD"
+                sh "docker login -u mythili23manivel -p 23M23m23*"
                 sh "docker push ${DOCKER_IMAGE}:latest"
             }
         }
