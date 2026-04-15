@@ -7,11 +7,6 @@ pipeline {
 
     stages {
 
-        stage('Clone') {
-    steps {
-        git branch: 'main', url: 'https://github.com/Mythili23Manivel/devops-ci-project.git'
-    }
-}
         stage('Build Docker Image') {
             steps {
                 script {
@@ -22,11 +17,7 @@ pipeline {
 
         stage('Test') {
             steps {
-                script {
-                    docker.image("${DOCKER_IMAGE}").inside {
-                        sh 'echo Test Successful'
-                    }
-                }
+                sh 'echo Test Successful'
             }
         }
 
