@@ -21,14 +21,15 @@ pipeline {
 
         stage('Run Container') {
             steps {
-                sh "docker run -d --name myapp ${DOCKER_IMAGE}:latest || true"
+                sh "docker rm -f myapp || true"
+                sh "docker run -d --name myapp ${DOCKER_IMAGE}:latest"
                 sh "docker ps"
             }
         }
 
         stage('Push Image') {
             steps {
-                sh "docker login -u mythili23manivel -p 23M23m23*"
+                sh "echo YOUR_PASSWORD | docker login -u mythili23manivel --password-stdin"
                 sh "docker push ${DOCKER_IMAGE}:latest"
             }
         }
