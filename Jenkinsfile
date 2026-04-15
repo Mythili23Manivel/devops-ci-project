@@ -1,17 +1,19 @@
-pipeline {
-    agent any
-    stages {
-        stage('Test') {
-            steps {
-                echo 'Pipeline is working 🚀'
-            }
-        }
-        stage('Docker Test') {
+stage('Docker Build') {
     steps {
-        sh 'docker --version'
+        sh 'docker build -t myapp:latest .'
+    }
+}
+
+stage('Run Container') {
+    steps {
+        sh 'docker run -d --name myapp_container myapp:latest'
         sh 'docker ps'
     }
 }
+
+stage('Cleanup') {
+    steps {
+        sh 'docker stop myapp_container || true'
+        sh 'docker rm myapp_container || true'
     }
-    
 }
