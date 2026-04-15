@@ -21,7 +21,7 @@ pipeline {
             }
         }
 
-        stage('Run Test') {
+        stage('Test') {
             steps {
                 script {
                     docker.image("${DOCKER_IMAGE}").inside {
