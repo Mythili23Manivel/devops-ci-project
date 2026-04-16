@@ -5,7 +5,13 @@ pipeline {
 
         stage('Test Message') {
             steps {
-                echo "🚀 GitHub + Jenkins is working perfectly!"
+                echo "GitHub + Jenkins working"
+            }
+        }
+
+        stage('Docker Test') {
+            steps {
+                sh 'docker --version'
             }
         }
     }
