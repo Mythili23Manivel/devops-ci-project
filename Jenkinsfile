@@ -7,53 +7,28 @@ pipeline {
 
     stages {
 
-        stage('Checkout Code') {
+        stage('Clone') {
             steps {
-                checkout scm
+                git 'https://github.com/Mythili23Manivel/devops-ci-project.git'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh "docker build -t ${DOCKER_IMAGE}:latest ."
-            }
-        }
-
-        stage('Test') {
-            steps {
-                sh "echo Test Successful"
-            }
-        }
-
-        stage('Run Container') {
-            steps {
-                sh "docker rm -f myapp || true"
-                sh "docker run -d --name myapp ${DOCKER_IMAGE}:latest"
-                sh "docker ps"
-            }
-        }
-
-        stage('Push Image') {
-            steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub-creds',
-                    usernameVariable: 'USER',
-                    passwordVariable: 'PASS'
-                )]) {
-                    sh "echo $PASS | docker login -u $USER --password-stdin"
-                    sh "docker push ${DOCKER_IMAGE}:latest"
+                script {
+                    docker.build("${DOCKER_IMAGE}")
                 }
             }
         }
-    }
 
-    post {
-        success {
-            echo "🎉 Pipeline SUCCESS - Docker image built, run, and pushed!"
-        }
-
-        failure {
-            echo "❌ Pipeline FAILED - check logs"
+        stage('Run Container Test') {
+            steps {
+                script {
+                    docker.image("${DOCKER_IMAGE}").inside {
+                        sh 'echo Test Successful'
+                    }
+                }
+            }
         }
     }
 }
