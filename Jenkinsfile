@@ -2,7 +2,8 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = "mythili23manivel/autotrigger"
+        IMAGE_NAME = "mythili23manivel/autotrigger:latest"
+        CONTAINER_NAME = "test-container"
     }
 
     triggers {
@@ -10,6 +11,12 @@ pipeline {
     }
 
     stages {
+
+        stage('Checkout Code') {
+            steps {
+                checkout scm
+            }
+        }
 
         stage('Build Docker Image') {
             steps {
@@ -19,8 +26,12 @@ pipeline {
 
         stage('Run Container Test') {
             steps {
-                sh 'docker rm -f test-container || true'
-                sh 'docker run --name test-container $IMAGE_NAME'
+                sh '''
+                    docker rm -f $CONTAINER_NAME || true
+                    docker run -d --name $CONTAINER_NAME -p 8081:8080 $IMAGE_NAME
+                    sleep 5
+                    docker ps
+                '''
             }
         }
 
@@ -32,8 +43,8 @@ pipeline {
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
                     sh '''
-                    echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
-                    docker push $IMAGE_NAME
+                        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                        docker push $IMAGE_NAME
                     '''
                 }
             }
@@ -42,7 +53,7 @@ pipeline {
 
     post {
         always {
-            sh 'docker rm -f test-container || true'
+            sh 'docker rm -f $CONTAINER_NAME || true'
         }
     }
 }
