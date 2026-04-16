@@ -1,18 +1,48 @@
 pipeline {
     agent any
 
+    environment {
+        IMAGE_NAME = "mythili23manivel/autotrigger"
+    }
+
+    triggers {
+        githubPush()
+    }
+
     stages {
 
-        stage('Test Message') {
+        stage('Build Docker Image') {
             steps {
-                echo "GitHub + Jenkins working"
+                sh 'docker build -t $IMAGE_NAME .'
             }
         }
 
-        stage('Docker Test') {
+        stage('Run Container Test') {
             steps {
-                sh 'docker --version'
+                sh 'docker rm -f test-container || true'
+                sh 'docker run --name test-container $IMAGE_NAME'
             }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'docker-hub-cred',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh '''
+                    echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                    docker push $IMAGE_NAME
+                    '''
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            sh 'docker rm -f test-container || true'
         }
     }
 }
