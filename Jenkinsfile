@@ -38,7 +38,7 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: 'docker-hub-cred',
+                    credentialsId: 'dockerhub-creds',
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
@@ -54,6 +54,12 @@ pipeline {
     post {
         always {
             sh 'docker rm -f $CONTAINER_NAME || true'
+        }
+        success {
+            echo '🚀 Pipeline Success! Image built, tested, and pushed to Docker Hub.'
+        }
+        failure {
+            echo '❌ Pipeline Failed! Check logs.'
         }
     }
 }
